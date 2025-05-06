@@ -1,0 +1,51 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Percy Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    # Optional: You can define inputs here that the user can provide
+    # when triggering manually via the UI.
+    # inputs:
+    #   environment:
+    #     description: 'Environment to deploy to'
+    #     required: true
+    #     default: 'staging'
+    #   build_only:
+    #     description: 'Skip deployment steps?'
+    #     required: false
+    #     type: boolean
+    #     default: false
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 20.17.0
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.17.0
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm run test
+      env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      # Optional: Ensure the script file is executable (often preserved by git)
+      # Add this step if you encounter permission errors
+    - name: Make script executable
+      run: chmod +x ./waitForBuildTOEnd.sh
+      # If your script is in a subdirectory, e.g., 'scripts/my_script.sh'
+      # run: chmod +x ./scripts/my_script.sh
+
+    - name: Execute the script file
+      run: ./waitForBuildTOEnd.sh # Run the script file directly      
+      env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
