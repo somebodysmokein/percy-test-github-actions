@@ -36,11 +36,11 @@ jobs:
     - run: npm ci
     # --- Add these debugging steps ---
     - name: Which percy?
-      run: which percy || echo "percy command not found"
+      run: npx percy --version
 
     - name: Which storybook?
       # This will likely fail, but the output might be informative
-      run: which storybook || echo "storybook command not found directly"
+      run: npx run storybook --version
       continue-on-error: true # Allow workflow to continue if this fails
 
     - name: List node_modules/.bin contents
